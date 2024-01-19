@@ -1,17 +1,21 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
 
-const ProductManager = require("../ProductManager")
+app.use(bodyParser.json());
 
+const ProductManager = require("./ProductManager");
 const productManager = new ProductManager("products.json");
 
-//la persistencia para la entrega se realiza usando el filesystem, donde products.json y carts.json se encargan de guardar la info.
+const CartManager = require("./ProductManager"); // Puedes usar el mismo ProductManager para el carrito si lo prefieres
+const cartManager = new CartManager("carts.json");
 
+// Rutas relacionadas con productos
 app.get('/products', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit, 10);
 
-        if (!isNaN(limit) && limit > 0) {
+        if (!isNaN(limit) && limit >= 0) {
             const products = await productManager.getProducts();
             res.json({ products: products.slice(0, limit) });
         } else {
@@ -40,6 +44,8 @@ app.get('/products/:id', async (req, res) => {
     }
 });
 
+// Rutas relacionadas con el carrito
+app.use('/cart', require('./routes/carts.router'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
