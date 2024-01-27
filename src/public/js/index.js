@@ -3,7 +3,6 @@ const socket = io();
 socket.on("updateProducts", (updatedProducts) => {
     updateProductList(updatedProducts);
 });
-
 // Evento para agregar producto
 document.getElementById("productForm").addEventListener("submit", (event) => {
     event.preventDefault(); // Prevenir el comportamiento predeterminado del formulario

@@ -1,4 +1,3 @@
-// app.js
 const express = require("express");
 const handlebars = require("express-handlebars");
 const { Server } = require("socket.io");
@@ -18,8 +17,13 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-const viewsRouter = require("./routes/api/views.router")(io);
+
+const viewsRouter = require("./routes/api/views.router")(io);  // Pasa io directamente
 app.use("/", viewsRouter);
+
+
+app.use("/realtimeproducts", require("./routes/api/products.router")(io));
+
 io.on("connection", (socket) => {
     console.log("Usuario conectado");
 
