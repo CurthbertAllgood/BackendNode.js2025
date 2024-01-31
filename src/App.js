@@ -1,47 +1,44 @@
-const express = require("express");
-const handlebars = require("express-handlebars");
-const { Server } = require("socket.io");
-const path = require("path");
+import express from "express";
+import prodManager from "./controllers/ProductManager.js";
+import routersProducts from "./routes/api/products.router.js";
+import routerViews from "./routes/api/views.router.js";
+import __dirname from "./utils.js";
+import handlebars from "express-handlebars";
+import { Server } from "socket.io";
+
 const app = express();
-const productsRouter = require("./routes/api/products.router");
+const httpServer = app.listen(8080, () => {
+    console.log(`server http://localhost:${8080}`);
+});
 
-const httpServer = app.listen(8080, () => console.log('Server running in port http://127.0.0.1:8080'));
-
-const io = new Server(httpServer);
-
-app.engine(
-    "handlebars",
-    handlebars.engine({ extname: "hbs", defaultLayout: "", layoutsDir: "" })
-);
+//CONFIGURACIONES
+//Socket.io
+const socketServer = new Server(httpServer);
+//Handlebars
+app.engine("handlebars", handlebars.engine());
+app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.static("public"));
+
+//MIDDLEWARES
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(express.static(__dirname + "/public"));
+app.use(express.json());
 
-const viewsRouter = require("./routes/api/views.router")(io);  // Pasa io directamente
-app.use("/", viewsRouter);
+//ROUTES
+app.use("/api/products", routersProducts);
 
+//VISTAS
+app.use("/", routerViews);
 
-app.use("/realtimeproducts", require("./routes/api/products.router")(io));
-
-io.on("connection", (socket) => {
-    console.log("Usuario conectado");
-
-    socket.on("addProduct", (product) => {
-        productsRouter.productsArray.push(product);
-        io.emit("updateProducts", productsRouter.productsArray);
+//SOCKET.IO
+socketServer.on("connection", (socket) => {
+    console.log("Un cliente se ha conectado");
+    socket.on("postProduct", async (data) => {
+        console.log("Evento postProduct recibido en el servidor", data);
+        await prodManager.addProduct(data);
+        socketServer.emit("postProduct", data);
+        socketServer.emit("recibirProductos", prodManager.getProducts());
     });
-
-    socket.on("deleteProduct", (productId) => {
-        const index = productsRouter.productsArray.findIndex((product) => product.id === productId);
-
-        if (index !== -1) {
-            productsRouter.productsArray.splice(index, 1);
-            io.emit("updateProducts", productsRouter.productsArray);
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log("Usuario desconectado");
-    });
+    socket.emit("recibirProductos", prodManager.getProducts());
 });

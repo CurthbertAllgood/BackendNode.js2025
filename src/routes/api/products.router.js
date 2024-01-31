@@ -1,58 +1,40 @@
-// products.router.js
-const express = require("express");
+import express from "express";
+import prodManager from "../../controllers/ProductManager.js";
+import { validarDatos } from "../../middlewares/middleware.js";
+
 const router = express.Router();
-const uuid = require('uuid');
 
-// Cambio: Agrega io como parámetro al router
-module.exports = (io) => {
-    let productsArray = [
-        { id: uuid.v4(), name: "Producto 1", price: 250 },
-        { id: uuid.v4(), name: "Producto 2", price: 300 },
-    ];
+router.get("/", (req, res) => {
+    const limit = req.query.limit;
+    if (limit) {
+        let productos = prodManager.getLimitProducts(parseInt(limit));
+        res.send(productos);
+    } else {
+        res.send(prodManager.getProducts());
+    }
+});
 
-    router.get("/", (req, res) => {
-        res.render("realTimeProducts", { products: productsArray });
-    });
+router.get("/:id", async (req, res) => {
+    const product = await prodManager.getProductsById(req.params.id);
+    if (product) {
+        res.send(product);
+    } else {
+        res.status(404).send("Producto no encontrado");
+    }
+});
 
-    router.post("/addProduct", (req, res) => {
-        const { productName, productPrice } = req.body;
+router.post("/", validarDatos, async (req, res) => {
+    console.log(req.body);
+    const prods = await prodManager.addProduct(req.body);
+    if (prods.existe) {
+        res.status(400).send(prods.mensaje);
+    }
+    res.status(201).send(prods.mensaje);
+});
 
-        const newProduct = {
-            id: uuid.v4(),
-            name: productName,
-            price: parseFloat(productPrice),
-        };
+router.delete("/:id", async (req, res) => {
+    await prodManager.deleteProduct(req.params.id);
+    res.send("Producto eliminado");
+});
 
-        productsArray.push(newProduct);
-
-        io.emit("updateProducts", productsArray);
-
-        res.redirect("/realtimeproducts");
-    });
-
-    router.get("/getProducts", (req, res) => {
-        res.json(productsArray);
-    });
-
-    router.delete("/deleteProduct/:id", (req, res) => {
-        const productId = req.params.id;
-
-        const index = productsArray.findIndex((product) => product.id === productId);
-
-        if (index !== -1) {
-            productsArray.splice(index, 1);
-
-            // Cambio: Emitir el evento a través de la instancia de io
-            io.emit("updateProducts", productsArray);
-
-            res.json({ success: true, message: "Producto eliminado exitosamente." });
-        } else {
-            res
-                .status(404)
-                .json({ success: false, message: "Producto no encontrado." });
-        }
-    });
-
-    // Cambio: Exporta el router configurado con io
-    return router;
-};
+export default router;

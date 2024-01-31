@@ -1,11 +1,25 @@
-const express = require('express');
+// import prodManager from "../controllers/ProductManager.js";
+import __dirname from "../../utils.js";
+import express, { response } from "express";
+
 const router = express.Router();
-const productsRouter = require("./products.router");  // No se exporta productsArray, solo importa el router
 
-module.exports = (io) => {
-    router.get("/", (req, res) => {
-        res.render("home", { products: productsRouter.productsArray });
+router.get("/home", (req, res) => {
+    fetch("http://localhost:8080/api/products")
+        .then((response) => response.json())
+        .then((data) => {
+            res.render("home", {
+                style: "home.css",
+                title: "Home",
+                data,
+            });
+        });
+});
+
+router.get("/realtimeproducts", (req, res) => {
+    res.render("realTimeProducts", {
+        style: "realtimeproducts.css",
+        title: "Realtime Products",
     });
-
-    return router;
-};
+});
+export default router;

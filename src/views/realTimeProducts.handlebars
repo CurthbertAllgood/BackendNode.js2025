@@ -1,22 +1,39 @@
-<h1>Ver Lista de Productos (Tiempo Real) en el home</h1>
-<a href="/">Ver productos</a>
-<ul id="productList">
-    {{#each products}}
-        <li>
-            {{this.id}} - {{this.name}} - ${{this.price}}
-            <button class="delete-btn" data-product-id="{{this.id}}">Eliminar</button>
-        </li>
-    {{/each}}
-</ul>
-
-<form id="productForm" action="/realtimeproducts/addProduct" method="post">
-    <label for="productName">Nombre:</label>
-    <input type="text" id="productName" name="productName" required>
-    <label for="productPrice">Precio:</label>
-    <input type="number" id="productPrice" name="productPrice" required>
-    <button type="submit">Agregar Producto</button>
-</form>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.7/uuid.min.js"></script>
+<div class="realtimeproducts">
+    <div class="form">
+        {{!-- <form action="/api/products" method="post" id="form-post"> --}}
+        <form id="form-post">
+            <input type="text" name="code" class="myinput" placeholder="Code"/>
+            <input type="text" name="thumbnail" class="myinput" placeholder="Imagen"/>
+            <input type="text" name="title" class="myinput" placeholder="Nombre"/>
+            <input type="number" name="price" class="myinput" placeholder="Precio"/>
+            <input type="number" name="stock" class="myinput" placeholder="Stock"/>
+            <input type="text" name="descripcion" class="myinput" placeholder="Descripcion"/>
+            <button class="mybutton confirmar" type="submit" >Confirmar</button >
+        </form>
+    </div>
+    <div class="table">
+        <div class="table-input">
+            <input type="search" name="seach_product" placeholder="Buscar por code o nombre.."/>
+            <h3>Products: <span id="count-products"></span></h3>
+        </div>
+        <div class="table-container-items">
+            <table>
+                <thead>
+                <tr>
+                    <th>N°</th>
+                    <th>code</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/index.js"></script>
+<script src="/js/realtimeproducts.js"></script>
