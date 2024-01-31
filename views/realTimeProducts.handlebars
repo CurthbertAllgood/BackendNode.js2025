@@ -1,0 +1,23 @@
+<!-- realTimeProducts.handlebars -->
+<h1>Ver Lista de Productos (Tiempo Real) en el home</h1>
+<a href="/">Ver productos</a>
+<ul id="productList">
+    {{#each products}}
+        <li>
+            {{this.id}} - {{this.name}} - ${{this.price}}
+            <button class="delete-btn" data-product-id="{{this.id}}">Eliminar</button>
+        </li>
+    {{/each}}
+</ul>
+
+<form id="productForm" action="/addProduct" method="post">
+    <label for="productName">Nombre:</label>
+    <input type="text" id="productName" name="productName" required>
+    <label for="productPrice">Precio:</label>
+    <input type="number" id="productPrice" name="productPrice" required>
+    <button type="button" id="addProductBtn">Agregar Producto</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.7/uuid.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>
