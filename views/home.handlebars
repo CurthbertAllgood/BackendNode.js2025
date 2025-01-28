@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <h1 class="color_red">Lista de Productos</h1>
-    <a href="/realTimeProducts">agregar producto</a>
-    <ul>
-        {{#each products}}
-            <li >{{this.id}} - {{this.name}} - ${{this.price}}</li>
-        {{/each}}
-    </ul>
-</body>
-</html>
+<h1>Lista de Productos</h1>
+<a href="/realTimeProducts">Productos en Tiempo Real</a>
+
+<ul>
+    {{#each products}}
+        <li>{{this.title}} - ${{this.price}}</li>
+    {{/each}}
+</ul>

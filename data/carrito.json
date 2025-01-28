@@ -1,0 +1,40 @@
+[
+  {
+    "id": "adbc1d5b-3b4a-40bb-b6c1-843415edbba1",
+    "products": []
+  },
+  {
+    "id": "8b551fdd-7331-46f1-82fd-6089bb73238c",
+    "products": [
+      {
+        "product": "fd66f2aa-bbd7-4df5-8e0e-067340d06537",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "c69e1723-9808-4283-a7b6-1c502a92aba9",
+    "products": [
+      {
+        "product": "fd66f2aa-bbd7-4df5-8e0e-067340d06537",
+        "quantity": 2
+      },
+      {
+        "product": "fd66f2aa-bbd7-4df5-8e",
+        "quantity": 1
+      },
+      {
+        "product": "0f3b92f6-ae3a-4b97-9dc4-1ea5330b7a8b",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "8cf15e94-faed-4c22-b441-22e1234267cf",
+    "products": []
+  },
+  {
+    "id": "ac65323a-1b6a-47df-8a8a-2a7edc43a0f4",
+    "products": []
+  }
+]

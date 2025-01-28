@@ -1,23 +1,41 @@
-<!-- realTimeProducts.handlebars -->
-<h1>Ver Lista de Productos (Tiempo Real) en el home</h1>
-<a href="/">Ver productos</a>
+<h1>Ver Lista de Productos (Tiempo Real)</h1>
+<a href="/">Volver a Productos</a>
+
 <ul id="productList">
     {{#each products}}
         <li>
-            {{this.id}} - {{this.name}} - ${{this.price}}
+            {{this.title}} - ${{this.price}} - Stock: {{this.stock}}
             <button class="delete-btn" data-product-id="{{this.id}}">Eliminar</button>
         </li>
     {{/each}}
 </ul>
 
-<form id="productForm" action="/addProduct" method="post">
-    <label for="productName">Nombre:</label>
-    <input type="text" id="productName" name="productName" required>
+<form id="productForm">
+    <label for="productTitle">Nombre:</label>
+    <input type="text" id="productTitle" name="title" required>
+
+    <label for="productDescription">Descripción:</label>
+    <input type="text" id="productDescription" name="description" required>
+
+    <label for="productCode">Código:</label>
+    <input type="text" id="productCode" name="code" required>
+
     <label for="productPrice">Precio:</label>
-    <input type="number" id="productPrice" name="productPrice" required>
+    <input type="number" id="productPrice" name="price" required>
+
+    <label for="productStock">Stock:</label>
+    <input type="number" id="productStock" name="stock" required>
+
+    <label for="productCategory">Categoría:</label>
+    <input type="text" id="productCategory" name="category" required>
+
+    <label for="productThumbnails">Imágenes (separadas por comas):</label>
+    <input type="text" id="productThumbnails" name="thumbnails">
+
     <button type="button" id="addProductBtn">Agregar Producto</button>
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.7/uuid.min.js"></script>
+<p id="statusMessage"></p>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>
