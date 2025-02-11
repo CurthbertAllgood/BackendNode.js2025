@@ -4,6 +4,10 @@ const { Server } = require("socket.io");
 const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
+const productsRouter = require("./routes/products.router");
+const cartsRouter = require("./routes/carts.router"); 
+const viewsRouter = require("./routes/views.router");
+
 
 const app = express();
 const httpServer = app.listen(8080, () =>
@@ -11,10 +15,6 @@ const httpServer = app.listen(8080, () =>
 );
 const io = new Server(httpServer);
 
-// Importar routers
-const productsRouter = require("./routes/products.router");
-const cartsRouter = require("./routes/carts.router"); // Asegurar que se está importando bien
-const viewsRouter = require("./routes/views.router");
 
 // Configuración de Handlebars
 app.engine("handlebars", handlebars.engine());
