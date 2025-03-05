@@ -1,0 +1,66 @@
+{{!-- productDetail.handlebars --}}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Detalles del Producto</h1>
+        <a href="/" class="btn btn-primary">Volver a la tienda</a>
+    </header>
+
+    <main class="container">
+        <div class="product-detail">
+            <img src="{{product.image}}" alt="{{product.name}}" class="product-image">
+            <div class="product-info">
+                <h2>{{product.name}}</h2>
+                <p><strong>Descripción:</strong> {{product.description}}</p>
+                <p><strong>Precio:</strong> ${{product.price}}</p>
+                <p><strong>Stock disponible:</strong> {{product.stock}}</p>
+                <p><strong>Categoría:</strong> {{product.category}}</p>
+                
+                {{#if product.stock}}
+                    <button class="btn btn-success add-to-cart" data-product-id="{{product._id}}">
+                        Agregar al Carrito
+                    </button>
+                {{else}}
+                    <button class="btn btn-secondary" disabled>Sin stock</button>
+                {{/if}}
+            </div>
+        </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        document.querySelector(".add-to-cart")?.addEventListener("click", (event) => {
+            const productId = event.target.dataset.productId;
+            let cartId = localStorage.getItem("cartId");
+
+            if (!cartId) {
+                fetch("/api/carts", { method: "POST" })
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem("cartId", data._id);
+                        socket.emit("addToCart", { cartId: data._id, productId });
+                    });
+            } else {
+                socket.emit("addToCart", { cartId, productId });
+            }
+        });
+
+        socket.on("updateCart", () => {
+            alert("✅ Producto agregado al carrito.");
+        });
+
+        socket.on("stockUnavailable", ({ productName }) => {
+            alert(`❌ ${productName} no tiene stock disponible.`);
+        });
+    </script>
+</body>
+</html>
