@@ -96,5 +96,12 @@ Vacía el carrito sin eliminarlo.
 
 **DELETE** `/api/carts/:cid/product/:pid`
 
+### 9. URL mongoDB
+
+Si el .env no aparece, generar uno en la ruta raiz e ingresar los siguientes datos:
+
+MONGO_URI=mongodb+srv://carlosortizcaceres2202:Fa1RvZmOGcTcjJt8@cluster0.ihirp.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Cluster0
+PORT=8080
+
 
 
