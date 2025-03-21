@@ -2,14 +2,12 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
-require("dotenv").config();
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
 const Product = require("./models/Product");
 const Cart = require("./models/Cart");
+require("dotenv").config({ path: __dirname + "/../.env" });
 
 // 📌 Configurar Handlebars
 const handlebars = require("express-handlebars");

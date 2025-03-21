@@ -1,3 +1,16 @@
+<!-- 🛒 Icono del carrito en la barra de navegación -->
+<nav class="navbar navbar-light bg-light mb-3">
+    <div class="container">
+        <a class="navbar-brand" href="#">Tienda Online</a>
+        <button type="button" class="btn btn-outline-dark position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+            🛒 Carrito 
+            <span id="cartItemCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                0
+            </span>
+        </button>
+    </div>
+</nav>
+
 <h1 class="text-center my-4">Lista de Productos</h1>
 
 <!-- Botón para agregar productos -->
@@ -120,21 +133,38 @@
     </tbody>
 </table>
 
-<!-- Sección del Carrito -->
-<h2>Carrito de Compras</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="cartList"></tbody>
-</table>
-<button class="btn btn-warning" id="clearCart">Vaciar Carrito</button>
 
 <p id="statusMessage"></p>
+
+<!-- 🛒 Modal del Carrito -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="cartList">
+                <tr><td colspan="3">El carrito está vacío</td></tr>
+            </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" id="clearCart">Vaciar Carrito</button>
+        <button class="btn btn-primary" id="saveCart">Guardar Carrito</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>
