@@ -2,7 +2,7 @@ const express = require("express");
 const Product = require("../models/Product"); // Cargar modelo de MongoDB
 const router = express.Router();
 
-// 🔹 Obtener todos los productos con filtros, orden y paginación
+//  Obtener todos los productos con filtros, orden y paginación
 router.get("/", async (req, res) => {
   try {
     let { limit = 10, page = 1, category, available, sort } = req.query;
@@ -12,22 +12,22 @@ router.get("/", async (req, res) => {
     limit = parseInt(limit);
     let query = {};
 
-    // 📌 Filtro por categoría
+    //  Filtro por categoría
     if (category) query.category = category;
 
-    // 📌 Filtro por disponibilidad (stock > 0 para disponibles, stock === 0 para no disponibles)
+    //  Filtro por disponibilidad (stock > 0 para disponibles, stock === 0 para no disponibles)
     if (available === "true") {
       query.stock = { $gt: 0 };  // Solo productos con stock disponible
     } else if (available === "false") {
       query.stock = 0;  // Solo productos sin stock
     }
 
-    // 📌 Ordenamiento por precio (ascendente/descendente)
+    //  Ordenamiento por precio (ascendente/descendente)
     let sortOption = {};
     if (sort === "asc") sortOption.price = 1;
     if (sort === "desc") sortOption.price = -1;
 
-    // 📌 Aplicar paginación con filtros y orden
+    //  Aplicar paginación con filtros y orden
     const options = {
       page,
       limit,
@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
 
     const products = await Product.paginate(query, options);
 
-    // 📌 Respuesta con formato requerido
+    //  Respuesta con formato requerido
     res.json({
       status: "success",
       payload: products.docs, 
@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 🔹 Obtener un producto por ID
+//  Obtener un producto por ID
 router.get("/:pid", async (req, res) => {
   try {
     const product = await Product.findById(req.params.pid);
@@ -69,7 +69,7 @@ router.get("/:pid", async (req, res) => {
   }
 });
 
-// 🔹 Agregar un nuevo producto
+//  Agregar un nuevo producto
 router.post("/", async (req, res) => {
   try {
     const newProduct = new Product(req.body);
@@ -81,7 +81,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 🔹 Actualizar un producto
+//  Actualizar un producto
 router.put("/:pid", async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.pid, req.body, { new: true });
@@ -93,7 +93,7 @@ router.put("/:pid", async (req, res) => {
   }
 });
 
-// 🔹 Eliminar un producto
+//  Eliminar un producto
 router.delete("/:pid", async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.pid);

@@ -1,19 +1,19 @@
 const socket = io();
 
-// 🔹 Cargar productos y carrito al inicio
+//  Cargar productos y carrito al inicio
 window.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
     recuperarCarrito();
 });
 
-// 🔹 Cargar productos desde el backend
+//  Cargar productos desde el backend
 function cargarProductos(query = "") {
     fetch(`/api/products${query}`)
         .then(res => res.json())
         .then(data => actualizarListaProductos(data.payload));
 }
 
-// 🔹 Aplicar filtros
+//  Aplicar filtros
 document.getElementById("applyFilters").addEventListener("click", aplicarFiltros);
 
 function aplicarFiltros() {
@@ -29,7 +29,7 @@ function aplicarFiltros() {
     cargarProductos(query);
 }
 
-// 🔹 Agregar producto
+//  Agregar producto
 document.getElementById("addProductBtn")?.addEventListener("click", () => {
     const name = document.getElementById("productTitle").value;
     const description = document.getElementById("productDescription").value;
@@ -47,12 +47,12 @@ document.getElementById("addProductBtn")?.addEventListener("click", () => {
     socket.emit("addProduct", newProduct);
 });
 
-// 🔹 Escuchar confirmación desde el backend
+//  Escuchar confirmación desde el backend
 socket.on("productAdded", () => {
     cargarProductos();
 });
 
-// 🔹 Manejo de eventos en botones dinámicos
+//  Manejo de eventos en botones dinámicos
 function asignarEventosBotones() {
     document.querySelectorAll(".add-to-cart").forEach(btn => {
         btn.onclick = (event) => {
@@ -92,7 +92,7 @@ function asignarEventosBotones() {
     });
 }
 
-// 🔹 Guardar carrito
+//  Guardar carrito
 function guardarCarrito() {
     const cartId = localStorage.getItem("cartId");
     if (!cartId) {
@@ -116,13 +116,13 @@ function guardarCarrito() {
 
 document.getElementById("saveCart")?.addEventListener("click", guardarCarrito);
 
-// 🔹 Mostrar carrito vacío
+//  Mostrar carrito vacío
 function actualizarCarritoVacio() {
     document.getElementById("cartList").innerHTML = "<tr><td colspan='3'>El carrito está vacío</td></tr>";
     document.getElementById("cartItemCount").innerText = "0";
 }
 
-// 🔹 Modal de detalles del producto
+//  Modal de detalles del producto
 function asignarEventosImagenes() {
     document.querySelectorAll(".product-image").forEach(img => {
         img.onclick = (event) => {
@@ -140,7 +140,7 @@ function asignarEventosImagenes() {
     });
 }
 
-// 🔹 Actualizar lista de productos
+//  Actualizar lista de productos
 socket.on("updateProducts", (products) => actualizarListaProductos(products));
 
 function actualizarListaProductos(products) {
@@ -160,7 +160,7 @@ function actualizarListaProductos(products) {
     asignarEventosBotones();
 }
 
-// 🔹 Actualizar contenido del carrito y contador
+//  Actualizar contenido del carrito y contador
 socket.on("updateCart", (cart) => actualizarCarrito(cart));
 
 function actualizarCarrito(cart) {
@@ -190,7 +190,7 @@ function actualizarCarrito(cart) {
     asignarEventosBotones();
 }
 
-// 🔹 Recuperar carrito al recargar
+//  Recuperar carrito al recargar
 function recuperarCarrito() {
     const cartId = localStorage.getItem("cartId");
     if (!cartId) return;
@@ -201,10 +201,10 @@ function recuperarCarrito() {
         .catch(() => localStorage.removeItem("cartId"));
 }
 
-// 🔹 Alerta de stock
+//  Alerta de stock
 socket.on("stockUnavailable", ({ productName }) => {
     alert(`❌ ${productName} no tiene stock disponible.`);
 });
 
-// 🔄 Inicializar botones
+
 asignarEventosBotones();

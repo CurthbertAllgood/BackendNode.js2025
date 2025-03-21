@@ -9,7 +9,7 @@ const Product = require("./models/Product");
 const Cart = require("./models/Cart");
 require("dotenv").config({ path: __dirname + "/../.env" });
 
-// 📌 Configurar Handlebars
+//  Configurar Handlebars
 const handlebars = require("express-handlebars");
 app.engine("handlebars", handlebars.engine());
 app.set("view engine", "handlebars");
@@ -18,10 +18,10 @@ app.set("views", __dirname + "/views");
 const viewsRouter = require("./routes/views.router");
 app.use("/", viewsRouter);
 
-// 📌 Hacer que `io` esté disponible en `req.app`
+//  Hacer que `io` esté disponible en `req.app`
 app.set("io", io);
 
-// 📌 Conectar a MongoDB
+//  Conectar a MongoDB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ Conectado a MongoDB Atlas"))
   .catch(err => {
@@ -29,22 +29,22 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
       process.exit(1);
   });
 
-// 📌 Middlewares
+//  Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// 📌 Importar rutas
+//  Importar rutas
 const productsRouter = require("./routes/products.router");
 const cartsRouter = require("./routes/carts.router");
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 
-// 📌 Configurar `socket.io`
+//  Configurar `socket.io`
 io.on("connection", (socket) => {
   console.log("🟢 Usuario conectado con socket.io");
 
-  // 🔹 Agregar Producto
+  //  Agregar Producto
   socket.on("addProduct", async (newProduct) => {
     try {
       console.log("📩 Recibida solicitud para agregar producto:", newProduct);
@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔹 Actualizar Producto
+  //  Actualizar Producto
   socket.on("updateProduct", async ({ productId, productData }) => {
     try {
       console.log("✏️ Actualizando producto:", productId, productData);
@@ -77,7 +77,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔹 Eliminar Producto
+  //  Eliminar Producto
   socket.on("deleteProduct", async (productId) => {
     try {
       console.log(`🗑️ Eliminando producto con ID: ${productId}`);
@@ -89,7 +89,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔹 Manejar el carrito
+  //  Manejar el carrito
   socket.on("addToCart", async ({ cartId, productId }) => {
     try {
       console.log("📩 Agregando producto al carrito:", { cartId, productId });
@@ -127,7 +127,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔹 Eliminar Producto del Carrito
+  //  Eliminar Producto del Carrito
   socket.on("removeFromCart", async ({ cartId, productId }) => {
     try {
       let cart = await Cart.findById(cartId).populate("products.productId");
@@ -152,7 +152,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔹 Vaciar Carrito
+  //  Vaciar Carrito
   socket.on("clearCart", async (cartId) => {
     try {
       let cart = await Cart.findById(cartId);

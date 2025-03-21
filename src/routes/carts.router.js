@@ -3,7 +3,7 @@ const router = express.Router();
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 
-// 🔹 Crear un nuevo carrito SOLO si no existe uno en uso
+//  Crear un nuevo carrito SOLO si no existe uno en uso
 router.post("/", async (req, res) => {
   try {
     console.log("📦 Creando un nuevo carrito...");
@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 🔹 Obtener un carrito por ID (Si está guardado, genera uno nuevo)
+//  Obtener un carrito por ID (Si está guardado, genera uno nuevo)
 router.get("/:cid", async (req, res) => {
   try {
     console.log(`🔍 Buscando carrito con ID: ${req.params.cid}`);
@@ -35,7 +35,7 @@ router.get("/:cid", async (req, res) => {
       return res.status(404).json({ error: "Carrito no encontrado" });
     }
 
-    // 📌 Si el carrito fue guardado, generar uno nuevo
+    //  Si el carrito fue guardado, generar uno nuevo
     if (cart.saved) {
       console.log("📦 Carrito guardado, generando uno nuevo...");
       const newCart = new Cart({ products: [], saved: false });
@@ -51,7 +51,7 @@ router.get("/:cid", async (req, res) => {
   }
 });
 
-// 🔹 Guardar el carrito (Solo si tiene productos)
+//  Guardar el carrito (Solo si tiene productos)
 router.put("/:cid/save", async (req, res) => {
   try {
     console.log(`📥 Guardando carrito con ID: ${req.params.cid}`);
@@ -62,7 +62,7 @@ router.put("/:cid/save", async (req, res) => {
       return res.status(404).json({ error: "Carrito no encontrado" });
     }
 
-    // ❌ Evitar guardar carritos vacíos
+    //  Evitar guardar carritos vacíos
     if (!cart.products || cart.products.length === 0) {
       console.log("🚫 No se puede guardar un carrito vacío.");
       return res.status(400).json({ error: "No se puede guardar un carrito vacío." });
@@ -74,7 +74,7 @@ router.put("/:cid/save", async (req, res) => {
     console.log("✅ Carrito guardado correctamente.");
     res.json({ message: "✅ Carrito guardado correctamente." });
 
-    // 🔹 Emitir actualización de carritos a todos los clientes
+    //  Emitir actualización de carritos a todos los clientes
     req.app.get("io").emit("cartSaved", cart._id);
   } catch (error) {
     console.error("❌ Error guardando carrito:", error);
@@ -82,7 +82,7 @@ router.put("/:cid/save", async (req, res) => {
   }
 });
 
-// 🔹 Agregar un producto al carrito
+//  Agregar un producto al carrito
 router.post("/:cid/product/:pid", async (req, res) => {
   try {
     console.log(`📩 Agregando producto ${req.params.pid} al carrito ${req.params.cid}`);
@@ -98,7 +98,7 @@ router.post("/:cid/product/:pid", async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    // 📌 Buscar si el producto ya está en el carrito
+    //  Buscar si el producto ya está en el carrito
     const itemIndex = cart.products.findIndex(p => p.productId.equals(req.params.pid));
     if (itemIndex !== -1) {
       cart.products[itemIndex].quantity++;
@@ -108,12 +108,12 @@ router.post("/:cid/product/:pid", async (req, res) => {
 
     await cart.save();
 
-    // 🔹 Volver a popular los productos antes de enviar respuesta
+    //  Volver a popular los productos antes de enviar respuesta
     const updatedCart = await Cart.findById(cart._id).populate("products.productId");
 
     console.log("✅ Producto agregado al carrito.");
 
-    // 🔹 Emitir actualización del carrito a todos los clientes conectados
+    //  Emitir actualización del carrito a todos los clientes conectados
     req.app.get("io").emit("updateCart", updatedCart);
     res.json(updatedCart);
   } catch (error) {
@@ -122,7 +122,7 @@ router.post("/:cid/product/:pid", async (req, res) => {
   }
 });
 
-// 🔹 Eliminar un producto del carrito
+//  Eliminar un producto del carrito
 router.delete("/:cid/product/:pid", async (req, res) => {
   try {
     console.log(`🗑️ Eliminando producto ${req.params.pid} del carrito ${req.params.cid}`);
@@ -135,12 +135,12 @@ router.delete("/:cid/product/:pid", async (req, res) => {
     cart.products = cart.products.filter(item => !item.productId.equals(req.params.pid));
     await cart.save();
 
-    // 🔹 Volver a popular los productos antes de emitir la actualización
+    //  Volver a popular los productos antes de emitir la actualización
     const updatedCart = await Cart.findById(cart._id).populate("products.productId");
 
     console.log("✅ Producto eliminado del carrito.");
 
-    // 🔹 Emitir actualización del carrito
+    //  Emitir actualización del carrito
     req.app.get("io").emit("updateCart", updatedCart);
 
     res.json(updatedCart);
@@ -150,7 +150,7 @@ router.delete("/:cid/product/:pid", async (req, res) => {
   }
 });
 
-// 🔹 Vaciar el carrito
+//  Vaciar el carrito
 router.delete("/:cid", async (req, res) => {
   try {
     console.log(`🗑️ Vaciando carrito con ID: ${req.params.cid}`);
@@ -162,12 +162,12 @@ router.delete("/:cid", async (req, res) => {
     cart.products = [];
     await cart.save();
 
-    // 🔹 Volver a popular los productos antes de emitir la actualización
+    //  Volver a popular los productos antes de emitir la actualización
     const updatedCart = await Cart.findById(cart._id).populate("products.productId");
 
     console.log("✅ Carrito vaciado con éxito.");
 
-    // 🔹 Emitir actualización del carrito vacío
+    //  Emitir actualización del carrito vacío
     req.app.get("io").emit("updateCart", updatedCart);
 
     res.json(updatedCart);
@@ -177,7 +177,7 @@ router.delete("/:cid", async (req, res) => {
   }
 });
 
-// 🔹 Limpiar carritos vacíos al iniciar el servidor
+//  Limpiar carritos vacíos al iniciar el servidor
 (async () => {
   try {
     console.log("🧹 Eliminando carritos vacíos al iniciar...");
