@@ -2,6 +2,13 @@ const express = require("express");
 const Product = require("../models/Product"); // Cargar productos desde MongoDB
 const router = express.Router();
 
+
+// Ruta para la vista de login
+router.get("/login", (req, res) => {
+  res.render("login", { title: "Iniciar Sesión" });
+});
+
+
 // Ruta para la vista principal
 router.get("/", async (req, res) => {
   try {

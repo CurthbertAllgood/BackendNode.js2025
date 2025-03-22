@@ -1,0 +1,44 @@
+<h2 class="text-center my-4">Iniciar Sesión</h2>
+
+<form id="loginForm" class="w-50 mx-auto">
+    <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <input type="email" class="form-control" id="email" name="email" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" id="password" name="password" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+</form>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const res = await fetch("/api/sessions/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ Sesión iniciada correctamente");
+                window.location.href = "/"; // o la vista protegida que quieras
+            } else {
+                alert(`❌ Error: ${result.error || "Credenciales inválidas"}`);
+            }
+        } catch (err) {
+            console.error("❌ Error al iniciar sesión:", err);
+            alert("❌ Ocurrió un error inesperado");
+        }
+    });
+</script>

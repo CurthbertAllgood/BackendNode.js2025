@@ -8,7 +8,20 @@ const io = new Server(server);
 const Product = require("./models/Product");
 const Cart = require("./models/Cart");
 const path = require("path");
+const sessionRouter = require("./routes/sessions.router");
+const passport = require("passport");
+const cookieParser = require("cookie-parser");
+const initializePassport = require("./config/passport.config");
 require("dotenv").config({ path: __dirname + "/../.env" });
+
+
+app.use(cookieParser());
+initializePassport();
+app.use(passport.initialize());
+
+app.use("/api/sessions", sessionRouter);
+
+
 
 //  Configurar Handlebars
 const handlebars = require("express-handlebars");
