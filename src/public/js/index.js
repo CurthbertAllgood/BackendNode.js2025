@@ -45,7 +45,22 @@ document.getElementById("addProductBtn")?.addEventListener("click", () => {
 
     const newProduct = { name, description, price, stock, category, image };
     socket.emit("addProduct", newProduct);
+
+    // ✅ Cerrar el modal (usando el ID correcto)
+    const modalEl = document.getElementById("addProductModal");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    modalInstance?.hide();
+
+    // ✅ Limpiar el formulario
+    document.getElementById("productTitle").value = "";
+    document.getElementById("productDescription").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("productStock").value = "";
+    document.getElementById("productCategory").value = "";
+    document.getElementById("productImage").value = "";
 });
+
+
 
 //  Escuchar confirmación desde el backend
 socket.on("productAdded", () => {
@@ -60,13 +75,31 @@ function asignarEventosBotones() {
             const productId = event.target.dataset.productId;
 
             if (cartId) {
-                socket.emit("addToCart", { cartId, productId });
+                fetch(`/api/carts/${cartId}/product/${productId}`, {
+                    method: "POST"
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("✅ Producto agregado al carrito:", data);
+                })
+                .catch(err => {
+                    console.error("❌ Error al agregar al carrito:", err);
+                });
             } else {
                 fetch("/api/carts", { method: "POST" })
                     .then(response => response.json())
                     .then(data => {
                         localStorage.setItem("cartId", data._id);
-                        socket.emit("addToCart", { cartId: data._id, productId });
+                        return fetch(`/api/carts/${data._id}/product/${productId}`, {
+                            method: "POST"
+                        });
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("✅ Producto agregado al carrito (nuevo):", data);
+                    })
+                    .catch(err => {
+                        console.error("❌ Error al crear carrito y agregar producto:", err);
                     });
             }
         };
@@ -115,6 +148,30 @@ function guardarCarrito() {
 }
 
 document.getElementById("saveCart")?.addEventListener("click", guardarCarrito);
+document.getElementById("clearCart")?.addEventListener("click", vaciarCarrito);
+
+
+function vaciarCarrito() {
+    const cartId = localStorage.getItem("cartId");
+    if (!cartId) {
+        alert("❌ No hay carrito activo para vaciar.");
+        return;
+    }
+
+    fetch(`/api/carts/${cartId}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(result => {
+        alert("🗑️ Carrito vaciado.");
+        actualizarCarrito({ products: [] });
+    })
+    .catch(error => {
+        console.error("❌ Error al vaciar carrito:", error);
+        alert("❌ Error al vaciar el carrito.");
+    });
+}
+
 
 //  Mostrar carrito vacío
 function actualizarCarritoVacio() {
@@ -148,6 +205,7 @@ function actualizarListaProductos(products) {
     productList.innerHTML = products.map(product => `
         <tr>
             <td>${product.name}</td>
+            <td><img src="${product.image}" alt="${product.name}" width="80"/></td>
             <td>$${product.price}</td>
             <td>${product.stock}</td>
             <td>
@@ -205,6 +263,5 @@ function recuperarCarrito() {
 socket.on("stockUnavailable", ({ productName }) => {
     alert(`❌ ${productName} no tiene stock disponible.`);
 });
-
 
 asignarEventosBotones();

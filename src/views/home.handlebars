@@ -113,6 +113,7 @@
     <thead>
         <tr>
             <th>Nombre</th>
+            <th>Imagen</th>
             <th>Precio</th>
             <th>Stock</th>
             <th>Acciones</th>
@@ -122,6 +123,22 @@
         {{#each products}}
             <tr>
                 <td>{{this.name}}</td>
+                <td>
+                    <img 
+                        src="{{this.image}}" 
+                        alt="{{this.name}}" 
+                        width="80" 
+                        class="img-thumbnail product-img"
+                        style="cursor: pointer;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#productModal"
+                        data-name="{{this.name}}"
+                        data-price="{{this.price}}"
+                        data-stock="{{this.stock}}"
+                        data-description="{{this.description}}"
+                        data-image="{{this.image}}"
+                    />
+                </td>
                 <td>${{this.price}}</td>
                 <td>{{this.stock}}</td>
                 <td>
@@ -132,6 +149,46 @@
         {{/each}}
     </tbody>
 </table>
+
+<!-- Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productModalLabel">Nombre del producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-fluid mb-3" />
+        <p id="modalDescription"></p>
+        <p><strong>Precio:</strong> $<span id="modalPrice"></span></p>
+        <p><strong>Stock disponible:</strong> <span id="modalStock"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("productModal");
+    const title = modal.querySelector(".modal-title");
+    const img = document.getElementById("modalImage");
+    const desc = document.getElementById("modalDescription");
+    const price = document.getElementById("modalPrice");
+    const stock = document.getElementById("modalStock");
+
+    document.querySelectorAll(".product-img").forEach(imgEl => {
+      imgEl.addEventListener("click", () => {
+        title.textContent = imgEl.dataset.name;
+        img.src = imgEl.dataset.image;
+        img.alt = imgEl.dataset.name;
+        desc.textContent = imgEl.dataset.description;
+        price.textContent = imgEl.dataset.price;
+        stock.textContent = imgEl.dataset.stock;
+      });
+    });
+  });
+</script>
 
 
 <p id="statusMessage"></p>
@@ -159,7 +216,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-warning" id="clearCart">Vaciar Carrito</button>
+        <button id="clearCart" class="btn btn-warning">Vaciar Carrito</button>
         <button class="btn btn-primary" id="saveCart">Guardar Carrito</button>
       </div>
     </div>
