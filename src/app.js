@@ -7,6 +7,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 const Product = require("./models/Product");
 const Cart = require("./models/Cart");
+const path = require("path");
 require("dotenv").config({ path: __dirname + "/../.env" });
 
 //  Configurar Handlebars
@@ -32,7 +33,8 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 //  Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
+
 
 //  Importar rutas
 const productsRouter = require("./routes/products.router");
