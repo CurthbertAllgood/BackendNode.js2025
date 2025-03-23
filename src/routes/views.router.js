@@ -1,19 +1,45 @@
 const express = require("express");
-const Product = require("../models/Product"); // Cargar productos desde MongoDB
+const jwt = require("jsonwebtoken");
+const Product = require("../models/Product");
 const router = express.Router();
 
+// Middleware para extraer el usuario desde la cookie JWT
+function getUserFromToken(req, res, next) {
+  const token = req.cookies?.jwt;
+  if (!token) {
+    res.locals.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.locals.user = decoded;
+  } catch (error) {
+    res.locals.user = null;
+  }
+
+  next();
+}
 
 // Ruta para la vista de login
 router.get("/login", (req, res) => {
   res.render("login", { title: "Iniciar Sesión" });
 });
 
+// Ruta para la vista de registro
+router.get("/register", (req, res) => {
+  res.render("register", { title: "Registro de Usuario" });
+});
 
 // Ruta para la vista principal
-router.get("/", async (req, res) => {
+router.get("/", getUserFromToken, async (req, res) => {
   try {
-    const products = await Product.find().lean(); // Obtener productos desde MongoDB
-    res.render("home", { title: "Inicio", products });
+    const products = await Product.find().lean();
+    res.render("home", {
+      title: "Inicio",
+      products,
+      user: res.locals.user
+    });
   } catch (error) {
     console.error("❌ Error cargando productos:", error);
     res.status(500).send("Error interno del servidor");

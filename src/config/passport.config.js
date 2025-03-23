@@ -17,7 +17,7 @@ module.exports = function initializePassport() {
     return done(null, user);
   }));
 
-  passport.use("jwt", new JWTStrategy({
+  passport.use("current", new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
     secretOrKey: process.env.JWT_SECRET
   }, async (jwt_payload, done) => {

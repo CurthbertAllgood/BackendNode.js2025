@@ -21,18 +21,36 @@ router.post("/register", async (req, res) => {
   });
 
   await newUser.save();
-  res.status(201).json({ message: "Usuario creado" });
+  res.redirect("/");
+
 });
 
 // Login
 router.post("/login", passport.authenticate("login", { session: false }), (req, res) => {
   const user = req.user;
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+  const token = jwt.sign(
+    {
+      id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "20s" }
+  );
+
   res.cookie("jwt", token, { httpOnly: true }).json({ message: "Login exitoso" });
 });
 
+router.get("/logout", (req, res) => {
+  res.clearCookie("jwt"); // elimina la cookie
+  res.redirect("/"); // te redirige al home
+});
+
+
 // Ruta current (usuario logueado)
-router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
+router.get("/current", passport.authenticate("current", { session: false }), (req, res) => {
   res.json({ user: req.user });
 });
 
