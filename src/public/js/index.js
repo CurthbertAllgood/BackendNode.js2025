@@ -181,31 +181,55 @@ function actualizarCarritoVacio() {
 
 //  Modal de detalles del producto
 function asignarEventosImagenes() {
-    document.querySelectorAll(".product-image").forEach(img => {
-        img.onclick = (event) => {
-            const product = JSON.parse(event.target.getAttribute("data-product"));
-            const modalBody = document.getElementById("productDetailBody");
-            modalBody.innerHTML = `
-                <img src="${product.image}" alt="${product.name}" class="img-fluid mb-3">
-                <h5>${product.name}</h5>
-                <p><strong>Precio:</strong> $${product.price}</p>
-                <p><strong>Stock:</strong> ${product.stock}</p>
-                <p><strong>Categoría:</strong> ${product.category}</p>
-                <p><strong>Descripción:</strong> ${product.description}</p>
-            `;
-        };
+    document.querySelectorAll(".product-img").forEach(imgEl => {
+        imgEl.addEventListener("click", () => {
+            const title = document.getElementById("productModalLabel");
+            const img = document.getElementById("modalImage");
+            const desc = document.getElementById("modalDescription");
+            const price = document.getElementById("modalPrice");
+            const stock = document.getElementById("modalStock");
+
+            title.textContent = imgEl.dataset.name;
+            img.src = imgEl.dataset.image;
+            img.alt = imgEl.dataset.name;
+            desc.textContent = imgEl.dataset.description;
+            price.textContent = imgEl.dataset.price;
+            stock.textContent = imgEl.dataset.stock;
+
+            console.log("🟢 Modal cargado con:", {
+                name: imgEl.dataset.name,
+                price: imgEl.dataset.price,
+                stock: imgEl.dataset.stock,
+                desc: imgEl.dataset.description
+            });
+        });
     });
 }
 
+
 //  Actualizar lista de productos
 socket.on("updateProducts", (products) => actualizarListaProductos(products));
-
 function actualizarListaProductos(products) {
     const productList = document.getElementById("productList");
     productList.innerHTML = products.map(product => `
         <tr>
             <td>${product.name}</td>
-            <td><img src="${product.image}" alt="${product.name}" width="80"/></td>
+            <td>
+                <img 
+                  src="${product.image}" 
+                  alt="${product.name}" 
+                  width="80" 
+                  class="img-thumbnail product-img"
+                  style="cursor: pointer;"
+                  data-bs-toggle="modal"
+                  data-bs-target="#productModal"
+                  data-name="${product.name}"
+                  data-price="${product.price}"
+                  data-stock="${product.stock}"
+                  data-description="${product.description}"
+                  data-image="${product.image}"
+                />
+            </td>
             <td>$${product.price}</td>
             <td>${product.stock}</td>
             <td>
@@ -215,8 +239,10 @@ function actualizarListaProductos(products) {
         </tr>
     `).join("");
 
-    asignarEventosBotones();
+    asignarEventosBotones();     // eventos de los botones
+    asignarEventosImagenes();   // 🔥 eventos para abrir el modal
 }
+
 
 //  Actualizar contenido del carrito y contador
 socket.on("updateCart", (cart) => actualizarCarrito(cart));
