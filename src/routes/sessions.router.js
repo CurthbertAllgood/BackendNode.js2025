@@ -37,15 +37,15 @@ router.post("/login", passport.authenticate("login", { session: false }), (req, 
       role: user.role
     },
     process.env.JWT_SECRET,
-    { expiresIn: "20s" }
+    { expiresIn: "1h" }
   );
 
   res.cookie("jwt", token, { httpOnly: true }).json({ message: "Login exitoso" });
 });
 
 router.get("/logout", (req, res) => {
-  res.clearCookie("jwt"); // elimina la cookie
-  res.redirect("/"); // te redirige al home
+  res.clearCookie("jwt"); 
+  res.redirect("/"); 
 });
 
 
