@@ -104,4 +104,46 @@ MONGO_URI=mongodb+srv://carlosortizcaceres2202:Fa1RvZmOGcTcjJt8@cluster0.ihirp.m
 PORT=8080
 
 
+### 10. Registrar Usuario
+
+Metodo: POST
+URL: http://localhost:8080/api/sessions/register
+Body (raw JSON):
+{
+  "first_name": "Juan",
+  "last_name": "Perez",
+  "email": "Juan@prueba.com",
+  "age": 23,
+  "password": "123456"
+}
+
+### 11. Login Usuario
+
+Metodo: POST
+URL: http://localhost:8080/api/sessions/login
+Body (raw JSON):
+{
+  "email": "carlos@prueba.com",
+  "password": "123asd"
+}
+
+### 12. Obtener usuario actual
+Metodo: GET
+URL: http://localhost:8080/api/sessions/current
+Requiere: Cookie jwt enviada automáticamente (si usás Postman, activá la opción “cookies”).
+
+### 13. Log Out Usuario
+
+Método: GET
+URL: http://localhost:8080/logout
+
+Resultado esperado:
+
+Elimina la cookie jwt.
+
+Redirecciona al home (/).
+
+Ya no se puede acceder a /api/sessions/current hasta volver a loguearse.
+
+
 
