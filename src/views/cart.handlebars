@@ -18,11 +18,18 @@
               <td>${{this.productId.price}}</td>
               <td>{{this.quantity}}</td>
               <td>${{multiply this.productId.price this.quantity}}</td>
-              <td>
-                  <button class="btn btn-danger remove-from-cart" data-product-id="{{this.productId._id}}">
-                      Eliminar
-                  </button>
-              </td>
+<td>
+  {{#if (gt this.quantity 1)}}
+    <button class="btn btn-sm btn-outline-danger decrease-quantity" data-product-id="{{this.productId._id}}">
+      Eliminar 1 unidad
+    </button>
+  {{/if}}
+  
+  <button class="btn btn-danger remove-from-cart" data-product-id="{{this.productId._id}}">
+    Eliminar
+  </button>
+</td>
+
           </tr>
           {{/each}}
       </tbody>

@@ -152,6 +152,43 @@ router.delete("/:cid", async (req, res) => {
   }
 });
 
+// Agregar una nueva ruta para eliminar una sola unidad de un producto
+router.put("/:cid/product/:pid/decrease", async (req, res) => {
+  try {
+    const cart = await Cart.findById(req.params.cid);
+    if (!cart) return res.status(404).json({ error: "Carrito no encontrado" });
+
+    const itemIndex = cart.products.findIndex(item => item.productId.equals(req.params.pid));
+    if (itemIndex === -1) return res.status(404).json({ error: "Producto no encontrado en el carrito" });
+
+    const product = await Product.findById(req.params.pid);
+    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+
+    if (cart.products[itemIndex].quantity > 1) {
+      cart.products[itemIndex].quantity--;
+      product.stock++;
+      await product.save();
+    } else {
+      // Si hay solo 1 unidad, eliminamos directamente el producto del carrito
+      product.stock++;
+      await product.save();
+      cart.products.splice(itemIndex, 1);
+    }
+
+    await cart.save();
+
+    const updatedCart = await Cart.findById(cart._id).populate("products.productId");
+    req.app.get("io").emit("updateCart", updatedCart);
+    req.app.get("io").emit("updateProducts", await Product.find());
+
+    res.json(updatedCart);
+  } catch (error) {
+    console.error("❌ Error reduciendo cantidad del producto:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+
 // Limpiar carritos vacíos
 (async () => {
   try {

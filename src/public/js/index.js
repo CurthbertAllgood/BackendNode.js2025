@@ -123,7 +123,28 @@ function asignarEventosBotones() {
             }
         };
     });
+
+    document.querySelectorAll(".decrease-quantity").forEach(btn => {
+        btn.onclick = (event) => {
+            const cartId = localStorage.getItem("cartId");
+            const productId = event.target.dataset.productId;
+
+            if (cartId) {
+                fetch(`/api/carts/${cartId}/product/${productId}/decrease`, {
+                    method: "PUT"
+                })
+                .then(res => res.json())
+                .then(updatedCart => {
+                    actualizarCarrito(updatedCart); // ✅ respuesta visual inmediata
+                })
+                .catch(err => {
+                    console.error("❌ Error al disminuir unidad del producto:", err);
+                });
+            }
+        };
+    });
 }
+
 
 //  Guardar carrito
 function guardarCarrito() {
@@ -256,15 +277,21 @@ function actualizarCarrito(cart) {
     if (cart.products.length === 0) {
         cartList.innerHTML = "<tr><td colspan='3'>El carrito está vacío</td></tr>";
     } else {
+
         cartList.innerHTML = cart.products.map(item => `
             <tr>
-                <td>${item.productId?.name || "Producto desconocido"}</td>
-                <td>${item.quantity}</td>
-                <td>
-                    <button class="btn btn-danger remove-from-cart" data-product-id="${item.productId?._id}">Eliminar</button>
-                </td>
+              <td>${item.productId?.name || "Producto desconocido"}</td>
+              <td>${item.quantity}</td>
+              <td class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary decrease-quantity" data-product-id="${item.productId._id}">-</button>
+                <button class="btn btn-sm btn-outline-success add-to-cart" data-product-id="${item.productId._id}">+</button>
+                <button class="btn btn-sm btn-danger remove-from-cart" data-product-id="${item.productId._id}">Eliminar</button>
+              </td>
             </tr>
-        `).join("");
+          `).join("");
+          
+        
+          
     }
 
     if (cartItemCount) {

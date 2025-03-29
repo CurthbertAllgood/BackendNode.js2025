@@ -31,7 +31,18 @@ app.use("/api/sessions", sessionRouter);
 
 //  Configurar Handlebars
 const handlebars = require("express-handlebars");
-app.engine("handlebars", handlebars.engine());
+
+const hbs = handlebars.create({
+  helpers: {
+    multiply: (a, b) => a * b,
+    gt: (a, b) => a > b
+  }
+});
+
+app.engine("handlebars", hbs.engine);
+app.set("view engine", "handlebars");
+app.set("views", __dirname + "/views");
+
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
 
