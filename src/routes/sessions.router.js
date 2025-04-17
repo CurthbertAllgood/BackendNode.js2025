@@ -4,7 +4,9 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const { createHash } = require("../utils/hash");
 const User = require("../models/User");
+const UserDTO = require("../dto/User.dto");
 const router = express.Router();
+
 
 // Registro
 router.post("/register", async (req, res) => {
@@ -51,7 +53,13 @@ router.get("/logout", (req, res) => {
 
 // Ruta current (usuario logueado)
 router.get("/current", passport.authenticate("current", { session: false }), (req, res) => {
-  res.json({ user: req.user });
+  if (!req.user) {
+    return res.status(401).json({ error: "Usuario no autenticado" });
+  }
+
+  const safeUser = new UserDTO(req.user);
+  res.status(200).json({ user: safeUser });
 });
+
 
 module.exports = router;

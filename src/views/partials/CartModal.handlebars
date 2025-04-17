@@ -1,0 +1,54 @@
+<!-- ✅ CART MODAL -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cartList">
+            <tr><td colspan="3">El carrito está vacío</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" id="cartTotal" style="text-align:right; font-weight:bold;"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="clearCart" class="btn btn-warning">Vaciar Carrito</button>
+        <button class="btn btn-success" id="finalizeCartBtn">Finalizar Compra</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ TICKET MODAL (inmediatamente después del modal anterior) -->
+
+<div class="modal fade" id="ticketModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">🎟 Ticket de Compra</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Código:</strong> <span id="ticketCode"></span></p>
+        <p><strong>Email:</strong> <span id="ticketEmail"></span></p>
+        <p><strong>Total:</strong> <span id="ticketAmount"></span></p>
+        <p><strong>Fecha:</strong> <span id="ticketDate"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+

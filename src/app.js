@@ -1,82 +1,80 @@
+// src/app.js
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const passport = require("passport");
+const handlebars = require("express-handlebars");
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const Product = require("./models/Product");
-const Cart = require("./models/Cart");
-const path = require("path");
-const sessionRouter = require("./routes/sessions.router");
-const passport = require("passport");
-const cookieParser = require("cookie-parser");
-const initializePassport = require("./config/passport.config");
-require("dotenv").config({ path: __dirname + "/../.env" });
 
-
-app.use(cookieParser());
-initializePassport();
-app.use(passport.initialize());
-
-//  Middlewares
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cookieParser());
 
+// Passport
+const initializePassport = require("./config/passport.config");
+initializePassport();
+app.use(passport.initialize());
 
-app.use("/api/sessions", sessionRouter);
-
-
-
-//  Configurar Handlebars
-const handlebars = require("express-handlebars");
-
+// Handlebars setup
 const hbs = handlebars.create({
   helpers: {
     multiply: (a, b) => a * b,
-    gt: (a, b) => a > b
-  }
+    gt: (a, b) => a > b,
+    eq: (a, b) => a === b
+  },
+  partialsDir: path.join(__dirname, "views", "partials")
 });
 
 app.engine("handlebars", hbs.engine);
 app.set("view engine", "handlebars");
-app.set("views", __dirname + "/views");
+app.set("views", path.join(__dirname, "views"));
 
-app.set("view engine", "handlebars");
-app.set("views", __dirname + "/views");
+// MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("✅ Conectado a MongoDB Atlas"))
+.catch(err => {
+  console.error("❌ Error al conectar a MongoDB Atlas:", err);
+  process.exit(1);
+});
 
+// Routes
 const viewsRouter = require("./routes/views.router");
-app.use("/", viewsRouter);
-
-//  Hacer que `io` esté disponible en `req.app`
-app.set("io", io);
-
-//  Conectar a MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
-  .catch(err => {
-      console.error("❌ Error al conectar a MongoDB Atlas:", err);
-      process.exit(1);
-  });
-
-
-
-
-//  Importar rutas
 const productsRouter = require("./routes/products.router");
 const cartsRouter = require("./routes/carts.router");
+const sessionRouter = require("./routes/sessions.router");
+const purchaseRouter = require("./routes/purchase.router");
+
+app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
+app.use("/api/sessions", sessionRouter);
+app.use("/api/purchase", purchaseRouter);
 
-//  Configurar `socket.io`
+// Make io available globally
+app.set("io", io);
+
+// Socket.io
+const Product = require("./models/Product");
+const Cart = require("./models/Cart");
+
 io.on("connection", (socket) => {
   console.log("🟢 Usuario conectado con socket.io");
 
-  //  Agregar Producto
   socket.on("addProduct", async (newProduct) => {
     try {
-      console.log("📩 Recibida solicitud para agregar producto:", newProduct);
       const product = new Product(newProduct);
       await product.save();
       io.emit("updateProducts", await Product.find());
@@ -87,29 +85,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  //  Actualizar Producto
-  socket.on("updateProduct", async ({ productId, productData }) => {
-    try {
-      console.log("✏️ Actualizando producto:", productId, productData);
-      const updatedProduct = await Product.findByIdAndUpdate(productId, productData, { new: true });
-      if (!updatedProduct) {
-        console.log("❌ Error: Producto no encontrado");
-        socket.emit("updateProductError", "Producto no encontrado");
-        return;
-      }
-      console.log("✅ Producto actualizado:", updatedProduct);
-      io.emit("updateProducts", await Product.find());
-      socket.emit("productUpdated", updatedProduct);
-    } catch (error) {
-      console.error("❌ Error actualizando producto:", error);
-      socket.emit("updateProductError", "No se pudo actualizar el producto");
-    }
-  });
-
-  //  Eliminar Producto
   socket.on("deleteProduct", async (productId) => {
     try {
-      console.log(`🗑️ Eliminando producto con ID: ${productId}`);
       await Product.findByIdAndDelete(productId);
       io.emit("updateProducts", await Product.find());
       io.emit("productDeleted", productId);
@@ -118,11 +95,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  //  Manejar el carrito
   socket.on("addToCart", async ({ cartId, productId }) => {
     try {
-      console.log("📩 Agregando producto al carrito:", { cartId, productId });
-
       let cart = await Cart.findById(cartId).populate("products.productId");
       const product = await Product.findById(productId);
 
@@ -138,12 +112,9 @@ io.on("connection", (socket) => {
         return;
       }
 
-      let item = cart.products.find(p => p.productId._id.equals(productId));
-      if (item) {
-        item.quantity++;
-      } else {
-        cart.products.push({ productId: product._id, quantity: 1 });
-      }
+      const item = cart.products.find(p => p.productId._id.equals(productId));
+      item ? item.quantity++ : cart.products.push({ productId: product._id, quantity: 1 });
+
       product.stock--;
       await product.save();
       await cart.save();
@@ -156,24 +127,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  //  Eliminar Producto del Carrito
   socket.on("removeFromCart", async ({ cartId, productId }) => {
     try {
       let cart = await Cart.findById(cartId).populate("products.productId");
       if (!cart) return;
 
-      const itemIndex = cart.products.findIndex(item => item.productId._id.equals(productId));
-      if (itemIndex === -1) return;
+      const index = cart.products.findIndex(p => p.productId._id.equals(productId));
+      if (index === -1) return;
 
       const product = await Product.findById(productId);
       if (product) {
-        product.stock += cart.products[itemIndex].quantity;
+        product.stock += cart.products[index].quantity;
         await product.save();
       }
 
-      cart.products.splice(itemIndex, 1);
+      cart.products.splice(index, 1);
       await cart.save();
 
+      cart = await Cart.findById(cartId).populate("products.productId");
       io.emit("updateCart", cart);
       io.emit("updateProducts", await Product.find());
     } catch (error) {
@@ -181,10 +152,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  //  Vaciar Carrito
   socket.on("clearCart", async (cartId) => {
     try {
-      let cart = await Cart.findById(cartId);
+      const cart = await Cart.findById(cartId);
       if (!cart) return;
       cart.products = [];
       await cart.save();

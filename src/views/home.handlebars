@@ -1,213 +1,46 @@
-<!-- 🛒 Icono del carrito en la barra de navegación -->
+{{!-- views/home.handlebars --}}
+
 <h1 class="text-center my-4">Lista de Productos</h1>
 
-<!-- Botón para agregar productos -->
-<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
-    Agregar Producto
-</button>
 
-<!-- Filtros -->
+
+{{#if user}}
+  {{#if (eq user.role "admin")}}
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
+      Agregar Producto
+    </button>
+  {{/if}}
+{{/if}}
+
+{{!-- Filtros --}}
 <div class="filters mb-4 d-flex gap-2">
-    <select id="categoryFilter" class="form-select">
-        <option value="">Todas las categorías</option>
-        <option value="Accesorios">Accesorios</option>
-        <option value="Hardware">Hardware</option>
-        <option value="Audio">Audio</option>
-    </select>
-
-    <select id="availabilityFilter" class="form-select">
-        <option value="">Disponibilidad</option>
-        <option value="true">Disponible</option>
-        <option value="false">No Disponible</option>
-    </select>
-
-    <select id="sortFilter" class="form-select">
-        <option value="">Ordenar por Precio</option>
-        <option value="asc">Menor a Mayor</option>
-        <option value="desc">Mayor a Menor</option>
-    </select>
-    
-    <button id="applyFilters" class="btn btn-primary">Aplicar Filtros</button>
+  <select id="categoryFilter" class="form-select">
+    <option value="">Todas las categorías</option>
+    <option value="Accesorios">Accesorios</option>
+    <option value="Hardware">Hardware</option>
+    <option value="Audio">Audio</option>
+  </select>
+  <select id="availabilityFilter" class="form-select">
+    <option value="">Disponibilidad</option>
+    <option value="true">Disponible</option>
+    <option value="false">No Disponible</option>
+  </select>
+  <select id="sortFilter" class="form-select">
+    <option value="">Ordenar por Precio</option>
+    <option value="asc">Menor a Mayor</option>
+    <option value="desc">Mayor a Menor</option>
+  </select>
+  <button id="applyFilters" class="btn btn-primary">Aplicar Filtros</button>
 </div>
 
-<!-- Modal para agregar producto -->
-<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addProductModalLabel">Agregar Nuevo Producto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="productForm">
-          <div class="mb-3">
-            <label for="productTitle" class="form-label">Nombre:</label>
-            <input type="text" id="productTitle" name="title" class="form-control" required>
-          </div>
+{{> AddProductModal }}
+{{> ProductTable }}
+{{> DetailProductModal }}
 
-          <div class="mb-3">
-            <label for="productDescription" class="form-label">Descripción:</label>
-            <input type="text" id="productDescription" name="description" class="form-control" required>
-          </div>
 
-          <div class="mb-3">
-            <label for="productPrice" class="form-label">Precio:</label>
-            <input type="number" id="productPrice" name="price" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="productStock" class="form-label">Stock:</label>
-            <input type="number" id="productStock" name="stock" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="productCategory" class="form-label">Categoría:</label>
-            <input type="text" id="productCategory" name="category" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="productImage" class="form-label">Imagen (URL):</label>
-            <input type="text" id="productImage" name="image" class="form-control">
-          </div>
-
-          <button type="button" id="addProductBtn" class="btn btn-primary">Agregar Producto</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de Alerta para Stock Agotado -->
-<div class="modal fade" id="stockAlertModal" tabindex="-1" aria-labelledby="stockAlertModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="stockAlertModalLabel">Producto Sin Stock</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        No hay stock disponible para este producto.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Tabla de productos en tiempo real -->
-<h2>Productos Disponibles</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Imagen</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="productList">
-        {{#each products}}
-            <tr>
-                <td>{{this.name}}</td>
-                <td>
-                    <img 
-                        src="{{this.image}}" 
-                        alt="{{this.name}}" 
-                        width="80" 
-                        class="img-thumbnail product-img"
-                        style="cursor: pointer;"
-                        data-bs-toggle="modal"
-                        data-bs-target="#productModal"
-                        data-name="{{this.name}}"
-                        data-price="{{this.price}}"
-                        data-stock="{{this.stock}}"
-                        data-description="{{this.description}}"
-                        data-image="{{this.image}}"
-                    />
-                </td>
-                <td>${{this.price}}</td>
-                <td>{{this.stock}}</td>
-                <td>
-                    <button class="btn btn-success add-to-cart" data-product-id="{{this._id}}">Agregar al Carrito</button>
-                    <button class="btn btn-danger delete-btn" data-product-id="{{this._id}}">Eliminar</button>
-                </td>
-            </tr>
-        {{/each}}
-    </tbody>
-</table>
-
-<!-- Modal -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="productModalLabel">Nombre del producto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body text-center">
-        <img id="modalImage" src="" alt="" class="img-fluid mb-3" />
-        <p id="modalDescription"></p>
-        <p><strong>Precio:</strong> $<span id="modalPrice"></span></p>
-        <p><strong>Stock disponible:</strong> <span id="modalStock"></span></p>
-      </div>
-    </div>
-  </div>
-</div>
+{{> CartModal }}
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("productModal");
-    const title = modal.querySelector(".modal-title");
-    const img = document.getElementById("modalImage");
-    const desc = document.getElementById("modalDescription");
-    const price = document.getElementById("modalPrice");
-    const stock = document.getElementById("modalStock");
-
-    document.querySelectorAll(".product-img").forEach(imgEl => {
-      imgEl.addEventListener("click", () => {
-        title.textContent = imgEl.dataset.name;
-        img.src = imgEl.dataset.image;
-        img.alt = imgEl.dataset.name;
-        desc.textContent = imgEl.dataset.description;
-        price.textContent = imgEl.dataset.price;
-        stock.textContent = imgEl.dataset.stock;
-      });
-    });
-  });
+  window.userRole = "{{user.role}}";
 </script>
-
-
 <p id="statusMessage"></p>
-
-<!-- 🛒 Modal del Carrito -->
-<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="cartList">
-                <tr><td colspan="3">El carrito está vacío</td></tr>
-            </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button id="clearCart" class="btn btn-warning">Vaciar Carrito</button>
-        <button class="btn btn-primary" id="saveCart">Guardar Carrito</button>
-      </div>
-    </div>
-  </div>
-</div>
-

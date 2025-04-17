@@ -1,0 +1,42 @@
+{{!-- 📤 Modal Agregar Producto --}}
+{{#if (eq user.role "admin")}}
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addProductModalLabel">Agregar Nuevo Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <div class="mb-3">
+            <label for="productTitle" class="form-label">Nombre:</label>
+            <input type="text" id="productTitle" name="title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="productDescription" class="form-label">Descripción:</label>
+            <input type="text" id="productDescription" name="description" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="productPrice" class="form-label">Precio:</label>
+            <input type="number" id="productPrice" name="price" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="productStock" class="form-label">Stock:</label>
+            <input type="number" id="productStock" name="stock" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="productCategory" class="form-label">Categoría:</label>
+            <input type="text" id="productCategory" name="category" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="productImage" class="form-label">Imagen (URL):</label>
+            <input type="text" id="productImage" name="image" class="form-control">
+          </div>
+          <button type="button" id="addProductBtn" class="btn btn-primary">Agregar Producto</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{/if}}
