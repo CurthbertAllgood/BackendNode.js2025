@@ -146,4 +146,38 @@ Redirecciona al home (/).
 Ya no se puede acceder a /api/sessions/current hasta volver a loguearse.
 
 
+14. Mocking: generación y verificación de datos
+Generar usuarios y mascotas falsas
+POST http://localhost:8080/api/mocks/generateData
+
+Body (JSON):
+
+json
+Copiar
+Editar
+{
+  "users": 5,
+  "pets": 8
+}
+Inserta en la base de datos la cantidad especificada de usuarios y mascotas.
+
+Cada mascota es asignada aleatoriamente a un usuario como owner.
+
+Obtener usuarios mockeados (solo generados en memoria)
+GET http://localhost:8080/api/mocks/mockingusers
+
+Devuelve una lista de usuarios generados (no se guarda en la base de datos).
+
+Útil para pruebas rápidas de frontend o validación de estructura.
+
+Ver mascotas insertadas (con sus dueños)
+GET http://localhost:8080/api/mocks/pets
+
+Devuelve todas las mascotas creadas, incluyendo los datos del dueño (nombre, apellido y email).
+
+Útil para verificar que la relación owner → user se generó correctamente.
+
+
+
+
 
