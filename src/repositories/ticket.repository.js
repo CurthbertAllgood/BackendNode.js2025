@@ -1,5 +1,5 @@
 // src/dao/repositories/ticket.repository.js
-const Ticket = require("../../models/Ticket");
+const Ticket = require("../models/Ticket");
 
 class TicketRepository {
   async createTicket({ amount, purchaser }) {

@@ -1,5 +1,5 @@
 // src/dao/models/product.dao.js
-const Product = require("../../models/Product");
+const Product = require("../models/Product");
 
 class ProductDAO {
   async findById(id) {

@@ -3,13 +3,72 @@ const socket = io();
 window.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
     recuperarCarrito();
+    interceptarLoginForm();
+
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("compraPendiente") === "true") {
+        chequearCompraPendiente();
+    }
+    
 });
+
+
 
 function cargarProductos(query = "") {
     fetch(`/api/products${query}`)
         .then(res => res.json())
         .then(data => actualizarListaProductos(data.payload));
 }
+
+function interceptarLoginForm() {
+    const loginForm = document.getElementById("loginForm");
+    if (!loginForm) return;
+
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = loginForm.email.value;
+        const password = loginForm.password.value;
+
+        const cartId = localStorage.getItem("cartId");
+        let cart = [];
+
+        if (cartId) {
+            try {
+                const res = await fetch(`/api/carts/${cartId}`);
+                const cartData = await res.json();
+                cart = cartData.products.map(item => ({
+                    productId: item.productId._id,
+                    quantity: item.quantity
+                }));
+            } catch (err) {
+                console.warn("⚠️ No se pudo cargar el carrito local:", err);
+            }
+        }
+
+        try {
+            const res = await fetch("/api/sessions/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, cart })
+            });
+
+            if (!res.ok) {
+                alert("❌ Credenciales inválidas o error de login");
+                return;
+            }
+
+            const result = await res.json();
+            localStorage.removeItem("cartId");
+            window.location.href = "/"; 
+        } catch (err) {
+            console.error("❌ Error en login con merge de carrito:", err);
+            alert("❌ Error en login");
+        }
+    });
+}
+
 
 document.getElementById("applyFilters").addEventListener("click", aplicarFiltros);
 
@@ -257,36 +316,90 @@ function recuperarCarrito() {
 }
 
 // Finalizar compra con ticket modal
-document.getElementById("finalizeCartBtn")?.addEventListener("click", () => {
+document.getElementById("finalizeCartBtn")?.addEventListener("click", async () => {
     const cartId = localStorage.getItem("cartId");
     if (!cartId) return alert("❌ No hay carrito activo para finalizar.");
 
-    fetch(`/api/purchase/${cartId}/purchase`, { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                alert(`❌ Error al finalizar compra: ${data.error}`);
+    try {
+        const res = await fetch(`/api/purchase/${cartId}/purchase`, { method: "POST" });
+
+        if (!res.ok) {
+            if (res.status === 401 || res.status === 403) {
+                alert("⚠️ Necesitás iniciar sesión para finalizar la compra.");
+                localStorage.setItem("pendingPurchase", "true"); // 🚀 Marca compra pendiente
+                window.location.href = "/login";
                 return;
+            } else {
+                throw new Error("Error procesando la compra.");
             }
+        }
 
-            const ticket = data.ticket;
-            document.getElementById("ticketCode").innerText = ticket.code;
-            document.getElementById("ticketEmail").innerText = ticket.purchaser;
-            document.getElementById("ticketAmount").innerText = `$${ticket.amount}`;
-            document.getElementById("ticketDate").innerText = new Date(ticket.purchase_datetime).toLocaleString();
+        const data = await res.json();
+        if (data.error) {
+            alert(`❌ Error al finalizar compra: ${data.error}`);
+            return;
+        }
 
-            localStorage.removeItem("cartId");
-            actualizarCarrito({ products: [] });
-            cargarProductos();
-
-            const ticketModal = new bootstrap.Modal(document.getElementById("ticketModal"));
-            ticketModal.show();
-        })
-        .catch(err => {
-            console.error("❌ Error procesando la compra:", err);
-            alert("❌ Error procesando la compra.");
-        });
+        mostrarTicket(data.ticket); // 🚀 Nueva función para mostrar ticket
+    } catch (err) {
+        console.error("❌ Error procesando la compra:", err);
+        alert("❌ Error procesando la compra.");
+    }
 });
+
+//  mostrar Ticket
+function mostrarTicket(ticket) {
+    document.getElementById("ticketCode").innerText = ticket.code;
+    document.getElementById("ticketEmail").innerText = ticket.purchaser;
+    document.getElementById("ticketAmount").innerText = `$${ticket.amount}`;
+    document.getElementById("ticketDate").innerText = new Date(ticket.purchase_datetime).toLocaleString();
+
+    localStorage.removeItem("cartId");
+    localStorage.removeItem("pendingPurchase");
+
+    actualizarCarrito({ products: [] });
+    cargarProductos();
+
+    const ticketModal = new bootstrap.Modal(document.getElementById("ticketModal"));
+    ticketModal.show();
+}
+
+//  chequearCompraPendiente
+
+async function chequearCompraPendiente() {
+    if (localStorage.getItem("pendingPurchase") === "true") {
+        const cartId = localStorage.getItem("cartId");
+        if (!cartId) {
+            localStorage.removeItem("pendingPurchase");
+            return;
+        }
+
+        // Paso 1: Verificar si el usuario está autenticado
+        const currentRes = await fetch("/api/sessions/current");
+        if (!currentRes.ok) {
+            console.warn("⚠️ Usuario no autenticado, no se procesa compra pendiente.");
+            return;
+        }
+
+        // Paso 2: Procesar la compra
+        fetch(`/api/purchase/${cartId}/purchase`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`❌ Error al finalizar compra: ${data.error}`);
+                } else {
+                    alert("✅ Compra finalizada exitosamente después del login.");
+                    mostrarTicket(data.ticket);
+                }
+            })
+            .catch(err => {
+                console.error("❌ Error procesando compra pendiente:", err);
+                alert("❌ Error procesando compra pendiente.");
+            });
+    }
+}
+
+
 
 socket.on("stockUnavailable", ({ productName }) => {
     alert(`❌ ${productName} no tiene stock disponible.`);

@@ -1,5 +1,5 @@
 // src/dao/models/ticket.dao.js
-const Ticket = require("../../models/Ticket");
+const Ticket = require("../models/Ticket");
 
 class TicketDAO {
   async create(data) {

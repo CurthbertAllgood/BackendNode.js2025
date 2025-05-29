@@ -1,5 +1,5 @@
 // src/dao/repositories/product.repository.js
-const productDAO = require("../models/product.dao");
+const productDAO = require("../dao/product.dao");
 
 class ProductRepository {
   async getProductById(id) {

@@ -8,7 +8,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const handlebars = require("express-handlebars");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config(); 
 
 const app = express();
 const server = http.createServer(app);
@@ -19,6 +19,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
+
+
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+console.log("SESSION_SECRET =", process.env.SESSION_SECRET);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 60 * 60 // 1 hora de sesión
+  })
+}));
+
 
 // Passport
 const initializePassport = require("./config/passport.config");
@@ -56,12 +72,15 @@ const productsRouter = require("./routes/products.router");
 const cartsRouter = require("./routes/carts.router");
 const sessionRouter = require("./routes/sessions.router");
 const purchaseRouter = require("./routes/purchase.router");
+const mocksRouter = require("./routes/mocks.router");
 
 app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/sessions", sessionRouter);
 app.use("/api/purchase", purchaseRouter);
+app.use("/api/mocks", mocksRouter);
+
 
 // Make io available globally
 app.set("io", io);

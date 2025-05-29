@@ -35,14 +35,25 @@
             const result = await res.json();
 
             if (res.ok) {
+                // 🛒 Si el servidor devolvió un cartId, guardarlo en localStorage
+                if (result.cartId) {
+                    localStorage.setItem("cartId", result.cartId);
+                }
+
                 alert("✅ Sesión iniciada correctamente");
-                window.location.href = "/"; // o la vista protegida que quieras
+                if (localStorage.getItem("pendingPurchase") === "true") {
+    window.location.href = "/?compraPendiente=true";
+} else {
+    window.location.href = "/";
+}
+
             } else {
                 alert(`❌ Error: ${result.error || "Credenciales inválidas"}`);
             }
         } catch (err) {
             console.error("❌ Error al iniciar sesión:", err);
-            alert("❌ usuario y/o contraseña incorrectos");
+            alert("❌ Usuario y/o contraseña incorrectos");
         }
     });
 </script>
+

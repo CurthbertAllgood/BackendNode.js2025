@@ -1,8 +1,8 @@
 // src/controllers/purchase.controller.js
 
-const cartRepository = require("../dao/repositories/cart.repository");
-const productRepository = require("../dao/repositories/product.repository");
-const ticketRepository = require("../dao/repositories/ticket.repository");
+const cartRepository = require("../repositories/cart.repository");
+const productRepository = require("../repositories/product.repository");
+const ticketRepository = require("../repositories/ticket.repository");
 const UserDTO = require("../dto/User.dto");
 const TicketDTO = require("../dto/Ticket.dto");
 

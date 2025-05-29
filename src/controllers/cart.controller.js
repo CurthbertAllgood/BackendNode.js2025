@@ -1,7 +1,7 @@
 // src/controllers/cart.controller.js
 
-const cartRepository = require("../dao/repositories/cart.repository");
-const productRepository = require("../dao/repositories/product.repository");
+const cartRepository = require("../repositories/cart.repository");
+const productRepository = require("../repositories/product.repository");
 
 exports.createCart = async (req, res) => {
   try {

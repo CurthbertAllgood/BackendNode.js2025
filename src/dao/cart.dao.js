@@ -1,5 +1,5 @@
 // src/dao/models/cart.dao.js
-const Cart = require("../../models/Cart");
+const Cart = require("../models/Cart");
 
 class CartDAO {
   async create(data) {
@@ -21,6 +21,10 @@ class CartDAO {
   async deleteEmptyUnsaved() {
     return await Cart.deleteMany({ products: [], saved: false });
   }
-}
 
+  async findActiveCartByUserId(userId) {
+    return await Cart.findOne({ user: userId, saved: false }).populate("products.productId");
+  }
+  
+}
 module.exports = new CartDAO();

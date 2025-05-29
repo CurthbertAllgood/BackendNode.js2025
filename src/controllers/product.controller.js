@@ -1,6 +1,6 @@
 // src/controllers/product.controller.js
 
-const productRepository = require("../dao/repositories/product.repository");
+const productRepository = require("../repositories/product.repository");
 
 exports.getAllProducts = async (req, res) => {
   try {
