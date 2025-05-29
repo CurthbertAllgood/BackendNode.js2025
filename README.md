@@ -96,6 +96,8 @@ Vacía el carrito sin eliminarlo.
 
 **DELETE** `/api/carts/:cid/product/:pid`
 
+---
+
 ### 9. URL mongoDB
 
 Si el .env no aparece, generar uno en la ruta raiz e ingresar los siguientes datos:
@@ -103,10 +105,11 @@ Si el .env no aparece, generar uno en la ruta raiz e ingresar los siguientes dat
 MONGO_URI=mongodb+srv://carlosortizcaceres2202:Fa1RvZmOGcTcjJt8@cluster0.ihirp.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Cluster0
 PORT=8080
 
+---
 
 ### 10. Registrar Usuario
 
-Metodo: POST
+Metodo: ***POST***
 URL: http://localhost:8080/api/sessions/register
 Body (raw JSON):
 {
@@ -117,9 +120,11 @@ Body (raw JSON):
   "password": "123456"
 }
 
+---
+
 ### 11. Login Usuario
 
-Metodo: POST
+Metodo: ***POST***
 URL: http://localhost:8080/api/sessions/login
 Body (raw JSON):
 {
@@ -127,14 +132,18 @@ Body (raw JSON):
   "password": "123asd"
 }
 
+---
+
 ### 12. Obtener usuario actual
-Metodo: GET
+Metodo: ***GET***
 URL: http://localhost:8080/api/sessions/current
 Requiere: Cookie jwt enviada automáticamente (si usás Postman, activá la opción “cookies”).
 
+---
+
 ### 13. Log Out Usuario
 
-Método: GET
+Método: ***GET***
 URL: http://localhost:8080/logout
 
 Resultado esperado:
@@ -145,10 +154,12 @@ Redirecciona al home (/).
 
 Ya no se puede acceder a /api/sessions/current hasta volver a loguearse.
 
+---
 
-14. Mocking: generación y verificación de datos
+### 14. Mocking: generación y verificación de datos
 Generar usuarios y mascotas falsas
-POST http://localhost:8080/api/mocks/generateData
+Metodo: ***POST*** 
+URL: http://localhost:8080/api/mocks/generateData
 
 Body (JSON):
 
@@ -163,15 +174,22 @@ Inserta en la base de datos la cantidad especificada de usuarios y mascotas.
 
 Cada mascota es asignada aleatoriamente a un usuario como owner.
 
-Obtener usuarios mockeados (solo generados en memoria)
-GET http://localhost:8080/api/mocks/mockingusers
+---
+
+
+### 15. Obtener usuarios mockeados (solo generados en memoria)
+Metodo: ***GET*** 
+URL: http://localhost:8080/api/mocks/mockingusers
 
 Devuelve una lista de usuarios generados (no se guarda en la base de datos).
 
 Útil para pruebas rápidas de frontend o validación de estructura.
 
-Ver mascotas insertadas (con sus dueños)
-GET http://localhost:8080/api/mocks/pets
+---
+
+### 16. Ver mascotas insertadas (con sus dueños)
+Metodo: ***GET*** 
+URL: http://localhost:8080/api/mocks/pets
 
 Devuelve todas las mascotas creadas, incluyendo los datos del dueño (nombre, apellido y email).
 
