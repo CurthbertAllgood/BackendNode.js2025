@@ -1,28 +1,33 @@
+# Desafío Backend - Primera Entrega
+
 ## Requisitos previos
 
 - Tener el servidor corriendo en `http://localhost:8080`
 - Tener MongoDB Atlas correctamente configurado y conectado
+- Tener un archivo `.env` con al menos estas variables:
 
----
+```env
+MONGO_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/<baseDeDatos>
+PORT=8080
+SESSION_SECRET=clave_super_secreta_123
+Endpoints disponibles
+1. Obtener todos los productos
+GET /api/products
 
-## Endpoints disponibles
+Opcional: filtros por categoría, disponibilidad y orden por precio:
 
-### 1. Obtener todos los productos
-
-**GET** `/api/products`
-
-**Opcional**: filtros por categoría, disponibilidad y orden por precio:
-
-```bash
+http
+Copiar
+Editar
 GET /api/products?category=Audio&available=true&sort=asc
-```
+2. Crear un nuevo producto
+POST /api/products
 
-### 2. Crear un nuevo producto (con imagen)
+Body (JSON):
 
-**POST** `/api/products`
-
-**Body (JSON):**
-```json
+json
+Copiar
+Editar
 {
   "name": "Silla Gamer",
   "description": "Silla gamer re cheta",
@@ -31,87 +36,42 @@ GET /api/products?category=Audio&available=true&sort=asc
   "category": "Accesorios",
   "image": "https://i.postimg.cc/HsYtQFNX/silla-gamer.png"
 }
-```
+Nota: podés omitir el campo image para usar uno por defecto.
 
-Otro ejemplo:
-```json
-{
-  "name": "Parlante Bluetooth",
-  "description": "Parlante re cheto",
-  "price": 120,
-  "stock": 15,
-  "category": "Audio",
-  "image": "https://i.postimg.cc/Z52rL0tK/parlante-musica.png"
-}
-```
+3. Crear un nuevo carrito
+POST /api/carts
 
-### Nota: puedes omitir el campo `image` para usar el valor por defecto._
+Respuesta: objeto con el ID del carrito creado.
 
-### 3. Crear un nuevo carrito
+4. Agregar un producto al carrito
+POST /api/carts/:cid/product/:pid
 
-**POST** `/api/carts`
+Reemplazar :cid por el ID del carrito y :pid por el ID del producto.
 
-**Respuesta:** objeto con el ID del carrito creado
+5. Ver un carrito por ID
+GET /api/carts/:cid
 
----
+6. Guardar el carrito (finalizar compra)
+PUT /api/carts/:cid/save
 
-### 4. Agregar un producto al carrito
+Guarda el carrito y evita seguir agregando productos.
 
-**POST** `/api/carts/:cid/product/:pid`
+Lanza error si el carrito está vacío.
 
-Reemplaza `:cid` por el ID del carrito y `:pid` por el ID del producto. Ejemplo:
-```bash
-POST /api/carts/654123abcdef/product/789456ghijkl
-```
+7. Vaciar un carrito
+DELETE /api/carts/:cid
 
----
+8. Eliminar un producto del carrito
+DELETE /api/carts/:cid/product/:pid
 
-### 5. Ver un carrito por ID
+9. Registrar usuario
+POST /api/sessions/register
 
-**GET** `/api/carts/:cid`
+Body (JSON):
 
-```bash
-GET /api/carts/654123abcdef
-```
-
----
-
-### 6. Guardar el carrito (finalizar compra)
-
-**PUT** `/api/carts/:cid/save`
-
-Guarda el carrito y evita que se sigan agregando productos. Si está vacío, lanza un error.
-
----
-
-### 7. Vaciar un carrito
-
-**DELETE** `/api/carts/:cid`
-
-Vacía el carrito sin eliminarlo.
-
----
-
-### 8. Eliminar un producto del carrito
-
-**DELETE** `/api/carts/:cid/product/:pid`
-
----
-
-### 9. URL mongoDB
-
-Si el .env no aparece, generar uno en la ruta raiz e ingresar los siguientes datos:
-
-MONGO_URI=mongodb+srv://carlosortizcaceres2202:Fa1RvZmOGcTcjJt8@cluster0.ihirp.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Cluster0
-PORT=8080
-
----
-
-### 10. Registrar Usuario
-
-Metodo: ***POST***
-URL: http://localhost:8080/api/sessions/register
-Body (raw JSON):
+json
+Copiar
+Editar
 {
   "first_name": "Juan",
   "last_name": "Perez",
@@ -119,47 +79,35 @@ Body (raw JSON):
   "age": 23,
   "password": "123456"
 }
+10. Login de usuario
+POST /api/sessions/login
 
----
+Body (JSON):
 
-### 11. Login Usuario
-
-Metodo: ***POST***
-URL: http://localhost:8080/api/sessions/login
-Body (raw JSON):
+json
+Copiar
+Editar
 {
   "email": "carlos@prueba.com",
   "password": "123asd"
 }
+11. Obtener usuario actual
+GET /api/sessions/current
 
----
+Requiere cookie JWT. Si usás Postman, asegurate de habilitar las cookies.
 
-### 12. Obtener usuario actual
-Metodo: ***GET***
-URL: http://localhost:8080/api/sessions/current
-Requiere: Cookie jwt enviada automáticamente (si usás Postman, activá la opción “cookies”).
+12. Cerrar sesión (logout)
+GET /logout
 
----
+Elimina la cookie JWT.
 
-### 13. Log Out Usuario
+Redirige al home (/).
 
-Método: ***GET***
-URL: http://localhost:8080/logout
+Bloquea el acceso a /api/sessions/current hasta volver a loguearse.
 
-Resultado esperado:
-
-Elimina la cookie jwt.
-
-Redirecciona al home (/).
-
-Ya no se puede acceder a /api/sessions/current hasta volver a loguearse.
-
----
-
-### 14. Mocking: generación y verificación de datos
-Generar usuarios y mascotas falsas
-Metodo: ***POST*** 
-URL: http://localhost:8080/api/mocks/generateData
+Funcionalidades de Mocking
+13. Generar usuarios y mascotas falsas
+POST /api/mocks/generateData
 
 Body (JSON):
 
@@ -170,32 +118,39 @@ Editar
   "users": 5,
   "pets": 8
 }
-Inserta en la base de datos la cantidad especificada de usuarios y mascotas.
+Inserta en la base de datos los registros indicados.
 
-Cada mascota es asignada aleatoriamente a un usuario como owner.
+Las mascotas son asignadas aleatoriamente a un usuario como owner.
 
----
+14. Obtener usuarios mockeados (en memoria)
+GET /api/mocks/mockingusers
 
+Devuelve una lista de usuarios generados en memoria (sin guardarlos en Mongo).
 
-### 15. Obtener usuarios mockeados (solo generados en memoria)
-Metodo: ***GET*** 
-URL: http://localhost:8080/api/mocks/mockingusers
+Útil para probar estructura o formato sin persistencia.
 
-Devuelve una lista de usuarios generados (no se guarda en la base de datos).
+15. Obtener mascotas insertadas (con dueños)
+GET /api/mocks/pets
 
-Útil para pruebas rápidas de frontend o validación de estructura.
+Lista todas las mascotas guardadas en Mongo.
 
----
+Incluye información del dueño (first_name, last_name, email) vía populate.
 
-### 16. Ver mascotas insertadas (con sus dueños)
-Metodo: ***GET*** 
-URL: http://localhost:8080/api/mocks/pets
+16. Obtener usuarios insertados
+GET /api/mocks/users
 
-Devuelve todas las mascotas creadas, incluyendo los datos del dueño (nombre, apellido y email).
+Lista todos los usuarios guardados en Mongo.
 
-Útil para verificar que la relación owner → user se generó correctamente.
+Útil para verificar el resultado de /generateData.
 
+Instalación rápida del proyecto
+bash
+Copiar
+Editar
+npm install
+npm run dev
+Verificar que el archivo .env esté correctamente configurado antes de ejecutar.
 
-
-
-
+Autor
+Carlos Ortiz Cáceres
+Entrega correspondiente al Proyecto Final - Backend Coderhouse
